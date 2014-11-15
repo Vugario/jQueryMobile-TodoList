@@ -1,4 +1,4 @@
-Assignment - Homework app
+# Assignment - Homework app
 
 Step 1. Create a new project and call it Homework. Start off with a basic template like the one below.
 
@@ -124,6 +124,12 @@ The code as shown above takes a given array and turns it into a JSON string. It 
 
 Now when you would press enter, a new item is stored in the database. Though you can not see it yet because we are not showing the existing items to the user yet. Lets build that now.
 
+Make a list on the homepage that will hold all our items. Place this code below the <input> element we created earlier.
+
+```html
+  <ul id="items" data-role="listview" data-inset="true"></ul>
+```
+
 The code below is going to be executed every time the homepage is loaded. We load the existing items ready to be shown to the user. Then we clear the existing list to make sure we don't load items twice. Now we loop through every item and push it into the list. Items that are marked as "done" will have their opacity set to 50%.
 
 ```js
@@ -156,13 +162,178 @@ The code below is going to be executed every time the homepage is loaded. We loa
 Put the code below at the bottom of your app.js. This will tell the app to execute homepage() every time the homepage is loaded.
 
 ```js
-  // Listen for events
   $(document).on('pagebeforeshow', '#home', function(event)
   {
     homepage();
   });
 ```
 
+Run your application and see if it works. You can add new items and they will show up on the homepage!
 
+Now lets build the ability to mark them as completed. Every item has a CSS class "toggle". Whenever we press a item with the class toggle we will launch a toggle() function with the ID of the item that was clicked on, like below.
 
-This app contains two views that will link to each other. The index.html and view.html.
+```js
+  $(document).on('click', '.toggle', function()
+  {
+    id = $(this).data('id');
+
+    toggle(id);
+  });
+```
+
+Make a new function called toggle(). This item will load all items and select one you clicked on. This item will then be marked as completed if it wasn't already so. If it was completed, we will mark it as not completed.
+
+```js
+  function toggle(id)
+  {
+    // Fetch all the items
+    items = getItems();
+
+    // Find the requested item
+    item = items[id];
+
+    // Toggle the status
+    item.done = (item.done) ? false : true;
+
+    // Write back to the item list
+    items[id] = item;
+
+    // Write back to the storage
+    saveItems(items);
+
+    // Reload the page
+    window.location.reload();
+  }
+```
+
+Run your application and test if it works.
+
+We would like to have the ability to edit or delete a item. We will make a new view for this. Create a new file called view.html and set it up like below.
+
+```html
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Homework</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquerymobile/1.4.3/jquery.mobile.min.js"></script>
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jquerymobile/1.4.3/jquery.mobile.min.css" />
+    <script src="js/app.js"></script>
+  </head>
+  <body>
+
+  <div data-role="page" id="view">
+    <div data-role="header" data-add-back-btn="true">
+      <h1>Homework</h1>
+      <a id="remove" href="index.html" class="ui-btn-right">Delete</a>
+
+    </div>
+    <div data-role="content">
+      <input type="text" id="title" name="title" placeholder="Enter a title">
+      <textarea id="description" name="description" placeholder="Enter a description"></textarea>
+      <a id="edit" href="index.html" data-role="button">Save</a>
+    </div>
+  </div>
+
+  </body>
+  </html>
+```
+
+This page contains a delete button, a save button, a title field and a description field. We will now create some code to interact with it.
+
+```js
+  $(document).on('pagebeforeshow', '#view', function(event)
+  {
+    // Retrieve the requested id from the URL
+    id = window.location.href.split('?')[1];
+
+    // Load the requested item
+    view(id);
+  });
+```
+
+The code as shown above will execute the view() function every time the #view page is requested.
+
+The view() function is very simple. It simply loads the requested item and populates the title and description fields with the available data.
+
+```js
+  function view(id)
+  {
+    // Fetch all the items
+    items = getItems();
+
+    // Find the requested item
+    item = items[id];
+
+    // Populate the page
+    $('#title').val(item.title);
+    $('#description').val(item.description);
+  }
+```
+
+When the user edits the form fields and presses save, we want to execute the code like below.
+
+```js
+  function edit()
+  {
+    // Retrieve the entered form data
+    var id = window.location.href.split('?')[1];
+    var title = $('#title').val();
+    var description = $('#description').val();
+
+    // Fetch the existing items
+    items = getItems();
+
+    // Push the new item into the existing list
+    items[id] = {
+      title: title,
+      description: description
+    };
+
+    // Store the new list
+    saveItems(items);
+  }
+```
+
+This will take the new title and description and overwrites the currently available data in our database. Now also create the listener for the save button.
+
+```js
+  $(document).on('click', '#edit', function()
+  {
+    edit();
+  });
+```
+
+To delete a item, we do pretty much the same thing. We create a listener
+
+```js
+  $(document).on('click', '#remove', function()
+  {
+    remove();
+  });
+```
+
+Now we create a remove() function that finds the item and removes it from the database.
+
+```js
+  function remove()
+  {
+    // Find the requested id
+    var id = window.location.href.split('?')[1];
+
+    // Fetch the existing items
+    items = getItems();
+
+    // Remove the item from the list
+    items.splice(id, 1);
+
+    // Store the new list
+    saveItems(items);
+  }
+```
+
+Run your application and make sure that everything works. Create a new item and add a description to it. Then mark it as "completed" and finally delete it.
+
+Did it work? Congratulations, you have finished your first database-driven application!
