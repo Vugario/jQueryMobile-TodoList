@@ -86,7 +86,7 @@ Replace the method you just created with the code below.
 
 When the enter key is pressed we look up the user's entered data. We then retrieve all items currently in our database and add this new one to the list. We now save the new list in the database and reload the page.
 
-The getItems() and saveItems() function is something we have to create ourselves. Use the code below.
+The getItems() and saveItems() functions we have to create ourselves. Use the code below.
 
 ```js
   function getItems()
@@ -206,7 +206,7 @@ Make a new function called toggle(). This item will load all items and select on
   }
 ```
 
-Run your application and test if it works.
+Run your application and test to see if it works.
 
 We would like to have the ability to edit or delete a item. We will make a new view for this. Create a new file called view.html and set it up like below.
 
